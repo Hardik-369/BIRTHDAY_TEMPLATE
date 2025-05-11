@@ -1,0 +1,244 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday, Aditi!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Lobster&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0e7ff, #f3e8ff); /* Soft blue-purple gradient */
+            color: #1f2937; /* Dark gray for readability */
+            text-align: center;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            font-family: 'Lobster', cursive;
+            font-size: 3.5em;
+            color: #7c3aed; /* Vibrant purple */
+            animation: fadeIn 2s ease-in;
+        }
+        p {
+            font-size: 1.2em;
+            color: #4b5563; /* Softer gray */
+        }
+        .cake-container {
+            margin: 20px 0;
+            position: relative;
+        }
+        .cake {
+            width: 200px;
+            height: 150px;
+            background: url('https://img.icons8.com/emoji/200/birthday-cake-emoji.png') no-repeat center;
+            background-size: contain;
+            margin: 0 auto;
+        }
+        .candle {
+            position: absolute;
+            width: 20px;
+            height: 40px;
+            background: url('https://img.icons8.com/emoji/20/candle.png') no-repeat center;
+            background-size: contain;
+            transition: opacity 0.5s;
+        }
+        .candle-off {
+            opacity: 0;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            background: #7c3aed; /* Purple button */
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin: 10px;
+        }
+        .button:hover {
+            background: #6d28d9; /* Darker purple on hover */
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            text-align: center;
+            animation: popUp 0.5s ease;
+        }
+        .joke-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: none; /* Hidden until joke is generated */
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .joke-container p {
+            font-size: 1em;
+            color: #1f2937;
+            margin: 0;
+        }
+        .balloon {
+            position: absolute;
+            width: 50px;
+            height: 70px;
+            background: url('https://img.icons8.com/emoji/50/balloon.png');
+            background-size: cover;
+            animation: float 5s infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh); }
+            100% { transform: translateY(-100vh); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes popUp {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5em; }
+            .cake { width: 150px; height: 100px; }
+            .joke-container { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Happy Birthday, Aditi! 🎉</h1>
+        <p>WISH YOU MANY MANY HAPPY RETURNS OF THE DAY AND HAVE A GOOD DAY</p>
+        <div class="cake-container">
+            <div class="cake"></div>
+            <div class="candle" id="candle1" style="left: 45%; top: 10px;"></div>
+            <div class="candle" id="candle2" style="left: 50%; top: 5px;"></div>
+            <div class="candle" id="candle3" style="left: 55%; top: 10px;"></div>
+        </div>
+        <button class="button" onclick="blowCandles()">Blow Out the Candles!</button>
+        <button class="button" onclick="showJoke()">Get a Birthday Chuckle</button>
+        <div class="joke-container" id="jokeContainer">
+            <p id="jokeText"></p>
+        </div>
+    </div>
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2>Happy Birthday, Aditi! 🎂</h2>
+            <p>Your epic vibes make every day a blast! Keep rocking it! 😎</p>
+            <button class="button" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        // Confetti animation on page load
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+
+        // Candle blowing animation and modal trigger
+        function blowCandles() {
+            document.getElementById('candle1').classList.add('candle-off');
+            document.getElementById('candle2').classList.add('candle-off');
+            document.getElementById('candle3').classList.add('candle-off');
+            confetti({
+                particleCount: 50,
+                spread: 60
+            });
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Random birthday joke generator
+        const jokes = [
+            "If friends were packages, Aditi would be top-rated on npm! 📦",
+            "Aditi is so cool, even GitHub throws her a star! ⭐",
+            "Why did the code run perfectly? Because Aditi was in the logic! 💻",
+            "Forget AI—Aditi's the real upgrade we needed! 🤖",
+            "Aditi's vibe? 100% clean code—no bugs, just brilliance! 🧠"
+        ];
+        function showJoke() {
+            const jokeContainer = document.getElementById('jokeContainer');
+            const jokeText = document.getElementById('jokeText');
+            const randomJoke = jokes[Math.floor(Math.random() * jokes.length)];
+            jokeText.textContent = randomJoke;
+            jokeContainer.style.display = 'block';
+        }
+
+        // Add floating balloons
+        for (let i = 0; i < 5; i++) {
+            let balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            balloon.style.left = `${Math.random() * 100}vw`;
+            balloon.style.animationDelay = `${Math.random() * 5}s`;
+            document.body.appendChild(balloon);
+        }
+    </script>
+</body>
+</html>
